@@ -7,7 +7,7 @@ const MonthlyDuesPaymentForm = ({ members }: any) => {
 
   function filterMembers(event) {
     const _member = members.filter(
-      (member) => member.staff_id == event.target.value.toUpperCase().trim()
+      (member) => member.staff_id === event.target.value.toUpperCase().trim()
     );
     setMember(_member);
     console.log(_member);
