@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import { GetStaticProps } from "next";
-import Head from "next/head";
-import MemberTable from "../../components/Member/MemberTable";
-import AddMember from "../../components/AddMember";
+import DuesTable from "../../components/MonthlyDues/DuesTable";
 import { url } from "../../config/url";
 import { getSession, signIn } from "next-auth/react";
 
@@ -24,11 +21,11 @@ type MemberProp = {
   relationship: string;
   archived: string;
   status: string;
+  institution: string;
 };
 
 export const getStaticProps: GetStaticProps = async () => {
   const res = await fetch(`${url}/members`);
-
   async function getRes() {
     if (res.status === 200) {
       return res.json();
@@ -44,7 +41,7 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-const Member: NextPage<MemberProp[]> = ({ members }: any) => {
+const MonthlyDues: NextPage<MemberProp[]> = ({ members }: any) => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const securePage = async () => {
@@ -61,10 +58,10 @@ const Member: NextPage<MemberProp[]> = ({ members }: any) => {
     return <h2>Loading...</h2>;
   }
   return (
-    <div className="flex flex-col">
-      <MemberTable members={members} />
+    <div>
+      <DuesTable />
     </div>
   );
 };
 
-export default Member;
+export default MonthlyDues;

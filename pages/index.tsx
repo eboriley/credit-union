@@ -3,17 +3,13 @@ import { GetStaticProps } from "next";
 import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React, { ReactNode } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
-import MemberList from "../Components/MemberList";
-import AddMember from "../Components/AddMember";
-import MemberTable from "../Components/MemberTable";
-import SortingTable from "../Components/SortingTable";
-import FilteringTable from "../Components/FilteringTable";
-import PagnationTable from "../Components/PagnationTable";
-import MonthlyDuesPaymentForm from "../Components/MonthlyDuesPaymentForm";
+import Script from "next/script";
+import { url } from "../config/url";
+import { getSession, signIn } from "next-auth/react";
 
-type MemberProp = {
+interface MemberProp {
   staffID: string;
   fName: string;
   surname: string;
@@ -29,10 +25,10 @@ type MemberProp = {
   relationship: string;
   archived: string;
   status: string;
-};
+}
 
 export const getStaticProps: GetStaticProps = async () => {
-  const res = await fetch("http://localhost:5000/members");
+  const res = await fetch(`${url}/members`);
 
   async function getRes() {
     if (res.status === 200) {
@@ -50,20 +46,27 @@ export const getStaticProps: GetStaticProps = async () => {
 };
 
 const Home: NextPage<MemberProp[]> = ({ members }: any) => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const securePage = async () => {
+      const session = await getSession();
+      if (!session) {
+        signIn();
+      } else {
+        setLoading(false);
+      }
+    };
+    securePage();
+  }, []);
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
   return (
-    <div className={styles.container}>
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-      <MonthlyDuesPaymentForm members={members} />
+    <div className={`${styles.container} w-full h-full`}>
+      {/* <MonthlyDuesPaymentForm members={members} /> */}
       {/* <MemberList members={members} />
       <AddMember /> */}
-      <PagnationTable members={members} />
+      {/* <PagnationTable members={members} /> */}
     </div>
   );
 };
