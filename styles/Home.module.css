@@ -118,9 +118,29 @@
   outline: 2px solid #16a34a;
   border: transparent;
 }
+
+.table {
+  border-collapse: collapse;
+}
+
+.loading{
+  opacity: 0;
+  transition: all 0.2s ease-in;
+}
+
+.loaded{
+  opacity: 1;
+  transition: all 0.2s ease-in;
+}
+
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
   }
+}
+
+@page{
+  margin: 0;
 }
