@@ -1,9 +1,10 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { url } from "../../../config/url";
 
 const login = async (staff_id, password) => {
-  const res = await fetch(`http://localhost:5000/login`, {
+  const res = await fetch(`${url}/login`, {
     body: JSON.stringify({
       staff_id: staff_id,
       password: password,
