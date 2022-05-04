@@ -1,70 +1,30 @@
 import React, { useState, useEffect } from "react";
 import styles from "/styles/Home.module.css";
 import { url } from "../../config/url";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 
 const Monthlyduesreport = () => {
-  const [displayDownloadBtn, setdisplayDownloadBtn] = useState("invisible");
+  const { data: session }: any = useSession();
+  const [displayDownloadBtn, setdisplayDownloadBtn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [dateFrom, setDateFrom] = useState({
-    fromDay: "",
-    fromMonth: "",
-    fromYear: "",
-  });
-  const [dateTo, setDateTo] = useState({
-    toDay: "",
-    toMonth: "",
-    toYear: "",
+  const [date, setDate] = useState({
+    from: "",
+    to: "",
   });
 
-  const handleDateFrom = (e: any) => {
+  const handleDate = (e: any) => {
     const { name, value } = e.target;
-    setDateFrom((prevState) => ({
+    setDate((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-    //validateDownload();
-  };
-
-  const handleDateTo = (e: any) => {
-    const { name, value } = e.target;
-    setDateTo((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    // validateDownload();
+    validateDownload();
   };
 
   const validateDownload = () => {
-    if (
-      dateFrom.fromYear === "" ||
-      dateFrom.fromMonth === "" ||
-      dateFrom.fromDay === "" ||
-      dateTo.toYear === "" ||
-      dateTo.toMonth === "" ||
-      dateTo.toDay === ""
-    ) {
-      setdisplayDownloadBtn("invisible");
-    } else setdisplayDownloadBtn("visible");
-  };
-
-  const getReport1 = async (event: any) => {
-    event.preventDefault();
-    const res = await fetch("http://localhost:5000/transactionbydate/123123", {
-      body: JSON.stringify({
-        from: `${dateFrom.fromYear}-${dateFrom.fromMonth}-${dateFrom.fromDay}`,
-        to: `${dateTo.toYear}-${dateTo.toMonth}-${dateTo.toDay}`,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    });
-
-    const result = await res.json();
-
-    console.log(result);
-    // setdisplayDownloadBtn("visible");
+    if (date.from === "" && date.to === "") {
+      setdisplayDownloadBtn(false);
+    } else setdisplayDownloadBtn(true);
   };
 
   useEffect(() => {
@@ -77,78 +37,58 @@ const Monthlyduesreport = () => {
       }
     };
     securePage();
-    validateDownload();
+
+    setDate(date);
   }, []);
   if (loading) {
     return <h2>Loading...</h2>;
   }
 
+  console.log(date);
   return (
     <div>
+      <h1>Generate statement of account</h1>
       <div>
-        <InputField
-          fieldName="Day"
-          id="fromDay"
-          name="fromDay"
-          type="text"
-          value={dateFrom.fromDay}
-          onChange={handleDateFrom}
+        <label htmlFor="from">
+          Date From<span className="text-red-600"> *</span>
+        </label>
+        <input
+          id="from"
+          name="from"
+          type="date"
+          className={`block rounded-md border border-green-400 outline-1 p-1.5 outline-green-700 ${styles.input}`}
+          onChange={handleDate}
         />
-        <InputField
-          fieldName="Month"
-          id="fromMonth"
-          name="fromMonth"
-          type="text"
-          value={dateFrom.fromMonth}
-          onChange={handleDateFrom}
-        />
-        <InputField
-          fieldName="Year"
-          id="fromYear"
-          name="fromYear"
-          type="text"
-          value={dateFrom.fromYear}
-          onChange={handleDateFrom}
+
+        <label htmlFor="to">
+          Date To<span className="text-red-600"> *</span>
+        </label>
+        <input
+          id="to"
+          name="to"
+          type="date"
+          className={`block rounded-md border border-green-400 outline-1 p-1.5 outline-green-700 ${styles.input}`}
+          onChange={handleDate}
         />
       </div>
-      <div>
-        <InputField
-          fieldName="Day"
-          id="toDay"
-          name="toDay"
-          type="text"
-          value={dateTo.toDay}
-          onChange={handleDateTo}
-        />
-        <InputField
-          fieldName="Month"
-          id="toMonth"
-          name="toMonth"
-          type="text"
-          value={dateTo.toMonth}
-          onChange={handleDateTo}
-        />
-        <InputField
-          fieldName="Year"
-          id="toYear"
-          name="toYear"
-          type="text"
-          value={dateTo.toYear}
-          onChange={handleDateTo}
-        />
-      </div>
-      <button
+      {/* <button
         className={`bg-green-600 shadow-md text-white text-xl rounded-md py-3 px-2 mt-3 mr-3 transition duration-700 hover:bg-green-500 hover:font-medium`}
         onClick={getReport1}
       >
         Generate report
-      </button>
-      <a
-        className={`bg-green-600 shadow-md text-white text-xl rounded-md ${displayDownloadBtn} py-3 px-2 mt-3 mr-3 transition duration-700 hover:bg-green-500 hover:font-medium`}
-        href={`https://nibs.nkawkawislamicschool.com/reportbydate/134577?from=${dateFrom.fromYear}-${dateFrom.fromMonth}-${dateFrom.fromDay}&to=${dateTo.toYear}-${dateTo.toMonth}-${dateTo.toDay}`}
-      >
-        Download Report
-      </a>
+      </button> */}
+      <div className="mt-6">
+        <a
+          className={
+            displayDownloadBtn
+              ? "bg-green-600 w-full shadow-md text-white text-xl rounded-md py-3 mt-3 p-3 cursor-pointer"
+              : "bg-green-300 w-full shadow-md text-white text-xl rounded-md py-3 mt-3 p-3 cursor-pointer"
+          }
+          href={`${url}/reportbydate/${session?.user.staff_id}?from=${date.from}&to=${date.to}`}
+        >
+          Download Report
+        </a>
+      </div>
     </div>
   );
 };
